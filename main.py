@@ -100,8 +100,12 @@ if __name__ ==  '__main__':
                 print("USARE DIRECTORY COMPLETA O TRASCINARE FILE NELLA CONSOLE")
                 file = input("Inserisci file da aprire: ")
                 sep()
-            with open(file, 'r') as file:
-                code = file.read().replace('\t', ' '*4).splitlines()
+            try:
+                with open(file, 'r') as file:
+                    code = file.read().replace('\t', ' '*4).splitlines()
+            except FileNotFoundError:
+                print("ERRORE: Impossibile trovare il file specificato.")
+                continue
         elif choice == '3':
             import Manual
             sep()
