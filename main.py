@@ -18,23 +18,24 @@ def convert(code): # Funzione usata per la traslazione in codice python
         print("ERRORE: La prima linea di codice deve essere un comando PROGRAMMA")
         return 1
 
-    if 'INIZIO' not in str(code):
-        print("ERRORE: Il codice deve contenere un'istruzione INIZIO")
-        return 1
-
-    if 'FINE' not in str(code):
-        print("ERRORE: Il codice deve contenere un'istruzione FINE.")
+    if code[1] != 'INIZIO':
+        print("ERRORE: Il codice deve contenere un'istruzione INIZIO nella seconda riga.")
         return 1
 
     for i, x in zip(code, range(len(code))): # Controllo degli altri comandi. 
         i = i.strip()
+        if len(i) == 0:
+            continue
         result += (' '*4)*indent
         if re.search("^#", i):
             result += i # Aggiunta dei commenti senza effettuare modifiche.
-        elif re.search("ALTRIMENTI SE", i):
+        elif re.search("ALTRIMENTI SE\(", i):
             result = result[:-4]
-            result += re.sub("ALTRIMENTI SE\((.*)\)", r"elif(\1):", i)
-        elif re.search("SE", i):
+            result += re.sub("ALTRIMENTI SE\((.*)\)", r"elif(\1):", i) 
+        elif re.search("MENTRE\(", i):
+            indent += 1
+            result += re.sub("MENTRE\((.*)\)", r"while(\1):",i) 
+        elif re.search("SE\(", i):
             indent += 1
             result += re.sub("SE\((.*)\)", r"if(\1):",i) 
         elif re.search("ALTRIMENTI", i):
@@ -42,20 +43,23 @@ def convert(code): # Funzione usata per la traslazione in codice python
             result += re.sub("ALTRIMENTI", r"else:", i)
         elif re.search(".*<-",i):
             result += re.sub("(.*)<-(.*)", rf"\1=\2", i) # Assegnazione variabili.
-        elif re.search("(^PROGRAMMA .*|^FINE.)", i):
-            result += ' ' # Codice necessario per aggiungere i commenti per i comandi FINE. e PROGRAMMA.
-        elif re.search("(^INIZIO)", i):
+        elif re.search("^PROGRAMMA .*", i):
+            result += ' ' # Codice necessario per aggiungere i commenti per il comando PROGRAMMA.
+        elif re.search("^INIZIO", i):
             indent += 1
-            result += 'if __name__ == "__main__":' # Codice necessario per aggiungere i commenti per i comandi FINE e PROGRAMMA. 
+            result += 'while __name__ == "__main__":' # Codice che dà l'entrata al main.  
+        elif re.search("FINE.", i):
+            result += "break"
         elif re.search("FINE", i):
             indent -= 1
-            result += ' '
+            result += ' ' 
         elif re.search("LEGGI\(",i):
             result += re.sub("LEGGI\((.*)\)", rf"\1 = autotype(input('\1: '))", i) # Prende un input dall'utente e lo salva in una variabile.
         elif re.search("SCRIVI\(",i): 
-            result += re.sub("SCRIVI\((.*)\)", rf"print(\1)", i) # Scrive la variabile sulla console. 
+            result += re.sub("SCRIVI\((.*)\)", rf"print(\1)", i) # Scrive la variabile sulla console.
         else:
             print(f"ERRORE: PAROLA CHIAVE {i} NON VALIDA. Linea {x+1}") # ERRORE se si inserisce un comando non valido.
+            print("ASSICURARSI DI AVER INSERITO PARENTESI AI COMANDI CHE LE RICHIEDONO.")
             return 1
         result += f"#{i}".rjust(int(2*max(map(len, code))) - len(result.splitlines()[-1]) + len(i)+(4*(str(code).count('FINE')+2))) # Commenti equivalenti al codice in pseudocodifica originale, con aggiunto allineamento
         result += "\n"
@@ -76,19 +80,20 @@ if __name__ ==  '__main__':
                 break
         ########################
         if not choice:
-            choice = input("1. Scrivi codice\n2. Apri file\n3. Esci\n-> ")
+            choice = input("1. Scrivi codice\n2. Apri file\n3. Manuale\nX. Esci\n-> ")
         code = []
         if choice == '1':
             print(f"Inserisci codice in pseudocodifica")
+            print("Scrivere 'X' per terminare l'inserimento.")
             sep()
             code.append(f"PROGRAMMA {input('PROGRAMMA ')}")
             print("INIZIO")
             code.append("INIZIO")
             while True:
                 a = input("").replace('\t', ' '*4)
-                code.append(a)
-                if a == "FINE.":
+                if a == "X":
                     break
+                code.append(a)
         elif choice == '2':
             if not file:
                 sep()
@@ -98,6 +103,13 @@ if __name__ ==  '__main__':
             with open(file, 'r') as file:
                 code = file.read().replace('\t', ' '*4).splitlines()
         elif choice == '3':
+            import Manual
+            sep()
+            Manual.open()
+            choice = None
+            sep()
+            continue
+        elif choice.lower() == 'x':
             break
         else:
             print("ERRORE: Opzione non valida.")
