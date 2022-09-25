@@ -7,4 +7,4 @@ INIZIO
     SCRIVI("Secondo caso!")
   ALTRIMENTI
     SCRIVI("Terzo caso!")
-FINE.
+    FINE.
