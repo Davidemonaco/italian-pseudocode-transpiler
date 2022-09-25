@@ -11,6 +11,7 @@ def convert(code): # Funzione usata per la traslazione in codice python
 #NON È RISULTATO DELLA CONVERSIONE.
 
 """
+    indent = 0
     if re.search("^PROGRAMMA .*",code[0]): # La prima stringa del programma deve contenere l'istruzione PROGRAMMA seguita dal nome del programma.
         result += re.sub("^PROGRAMMA (.*)", r"#\1",code[0]) # Aggiunge un commento alla prima riga del codice convertito che indica il nome del programma.
     else:
@@ -18,22 +19,37 @@ def convert(code): # Funzione usata per la traslazione in codice python
         return 1
 
     if 'INIZIO' not in str(code):
-        print("ERRORE: Il codice deve contenere un istruzione INIZIO")
+        print("ERRORE: Il codice deve contenere un'istruzione INIZIO")
         return 1
 
     if 'FINE' not in str(code):
-        print("ERRORE: Il codice deve contenere un istruzione FINE")
+        print("ERRORE: Il codice deve contenere un'istruzione FINE.")
         return 1
 
     for i, x in zip(code, range(len(code))): # Controllo degli altri comandi. 
+        i = i.strip()
+        result += (' '*4)*indent
         if re.search("^#", i):
             result += i # Aggiunta dei commenti senza effettuare modifiche.
+        elif re.search("ALTRIMENTI SE", i):
+            result = result[:-4]
+            result += re.sub("ALTRIMENTI SE\((.*)\)", r"elif(\1):", i)
+        elif re.search("SE", i):
+            indent += 1
+            result += re.sub("SE\((.*)\)", r"if(\1):",i) 
+        elif re.search("ALTRIMENTI", i):
+            result = result[:-4]
+            result += re.sub("ALTRIMENTI", r"else:", i)
         elif re.search(".*<-",i):
             result += re.sub("(.*)<-(.*)", rf"\1=\2", i) # Assegnazione variabili.
         elif re.search("(^PROGRAMMA .*|^FINE.)", i):
-            result += ' ' # Codice necessario per aggiungere i commenti per i comandi FINE e PROGRAMMA.
+            result += ' ' # Codice necessario per aggiungere i commenti per i comandi FINE. e PROGRAMMA.
         elif re.search("(^INIZIO)", i):
-            result += 'if __name__ == "__main__":' # Codice necessario per aggiungere i commenti per i comandi FINE e PROGRAMMA.
+            indent += 1
+            result += 'if __name__ == "__main__":' # Codice necessario per aggiungere i commenti per i comandi FINE e PROGRAMMA. 
+        elif re.search("FINE", i):
+            indent -= 1
+            result += ' '
         elif re.search("LEGGI\(",i):
             result += re.sub("LEGGI\((.*)\)", rf"\1 = autotype(input('\1: '))", i) # Prende un input dall'utente e lo salva in una variabile.
         elif re.search("SCRIVI\(",i): 
@@ -41,7 +57,7 @@ def convert(code): # Funzione usata per la traslazione in codice python
         else:
             print(f"ERRORE: PAROLA CHIAVE {i} NON VALIDA. Linea {x+1}") # ERRORE se si inserisce un comando non valido.
             return 1
-        result += f"#{i}".rjust(int(2*max(map(len, code))) - len(result.splitlines()[-1]) + len(i)) # Commenti equivalenti al codice in pseudocodifica originale, con aggiunto allineamento
+        result += f"#{i}".rjust(int(2*max(map(len, code))) - len(result.splitlines()[-1]) + len(i)+(4*(str(code).count('FINE')+2))) # Commenti equivalenti al codice in pseudocodifica originale, con aggiunto allineamento
         result += "\n"
     
     return result
