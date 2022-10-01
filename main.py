@@ -2,7 +2,8 @@
 import re, sys
 sep = lambda: print('='*30)
 def convert(code): # Funzione usata per la traslazione in codice python
-    result = """def autotype(value):
+    result = """import sys
+def autotype(value):
     try:
         return int(value)
     except:
@@ -11,7 +12,7 @@ def convert(code): # Funzione usata per la traslazione in codice python
 #NON È RISULTATO DELLA CONVERSIONE.
 
 """
-    indent = 0
+    indent = []
     if re.search("^PROGRAMMA .*",code[0]): # La prima stringa del programma deve contenere l'istruzione PROGRAMMA seguita dal nome del programma.
         result += re.sub("^PROGRAMMA (.*)", r"#\1",code[0]) # Aggiunge un commento alla prima riga del codice convertito che indica il nome del programma.
     else:
@@ -26,19 +27,21 @@ def convert(code): # Funzione usata per la traslazione in codice python
         i = i.strip()
         if len(i) == 0:
             continue
-        result += (' '*4)*indent
+        result += (' '*4)*len(indent)
         if re.search("^#", i):
             result += i # Aggiunta dei commenti senza effettuare modifiche.
         elif re.search("ALTRIMENTI SE\(", i):
             result = result[:-4]
             result += re.sub("ALTRIMENTI SE\((.*)\)", r"elif(\1):", i) 
         elif re.search("MENTRE\(", i):
-            indent += 1
+            indent.append('break')
             result += re.sub("MENTRE\((.*)\)", r"while(\1):",i) 
         elif re.search("SE\(", i):
-            indent += 1
+            indent.append('')
             result += re.sub("SE\((.*)\)", r"if(\1):",i) 
         elif re.search("ALTRIMENTI", i):
+            if indent[-1] == 'break':
+                indent[-1] = 'pass'
             result = result[:-4]
             result += re.sub("ALTRIMENTI", r"else:", i)
         elif re.search(".*<-",i):
@@ -46,13 +49,15 @@ def convert(code): # Funzione usata per la traslazione in codice python
         elif re.search("^PROGRAMMA .*", i):
             result += ' ' # Codice necessario per aggiungere i commenti per il comando PROGRAMMA.
         elif re.search("^INIZIO", i):
-            indent += 1
+            indent.append('')
             result += 'while __name__ == "__main__":' # Codice che dà l'entrata al main.  
         elif re.search("FINE.", i):
-            result += "break"
+            result += "sys.exit()"
         elif re.search("FINE", i):
-            indent -= 1
-            result += ' ' 
+            if len(indent[-1]) != 0:
+                result += indent[-1]
+            indent.pop()
+            result += ' '
         elif re.search("LEGGI\(",i):
             result += re.sub("LEGGI\((.*)\)", rf"\1 = autotype(input('\1: '))", i) # Prende un input dall'utente e lo salva in una variabile.
         elif re.search("SCRIVI\(",i): 
