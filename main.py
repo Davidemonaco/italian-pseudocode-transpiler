@@ -166,6 +166,9 @@ if __name__ ==  '__main__':
             except SystemExit:
                 sep()
                 print("---ESECUZIONE TERMINATA---")
+            except SyntaxError, err:
+                sep()
+                print("ERRORE DI SINTASSI a %s (%s-%s): %s" % (err.filename, err.lineno, err.offset, err.text)
         #ARGOMENTO -file e -output DA CONSOLE
         if ('-file' in sys.argv) or ('-output' in sys.argv):
             break
