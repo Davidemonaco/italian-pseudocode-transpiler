@@ -41,5 +41,6 @@ jobs:
           file: ./dist/main.exe
           tag: ${{ github.event.inputs.vname }}
           prerelease: ${{ github.event.inputs.prerelease }}
+          release_name: Transpiler $tag
           asset_name: pseudocode.exe
 
