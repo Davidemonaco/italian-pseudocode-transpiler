@@ -1,6 +1,9 @@
 #CONVERTITORE DA PSEUDOCODIFICA A CODICE PYTHON
 import re, sys
 sep = lambda: print('='*30)
+def reset():
+    sys.argv = [sys.argv[0]]
+
 def convert(code): # Funzione usata per la traslazione in codice python
     result = """import sys
 def autotype(value):
@@ -125,7 +128,8 @@ if __name__ ==  '__main__':
             continue
         
         if convert(code) == 1:
-            break
+            reset()
+            continue
 
         #ARGOMENTO -show DA CONSOLE
         if '-show' in sys.argv:
