@@ -161,7 +161,11 @@ if __name__ ==  '__main__':
                     break
         ########################
         else:
-            exec(convert(code))
+            try:
+                exec(convert(code))
+            except SystemExit:
+                sep()
+                print("---ESECUZIONE TERMINATA---")
         #ARGOMENTO -file e -output DA CONSOLE
         if ('-file' in sys.argv) or ('-output' in sys.argv):
             break
