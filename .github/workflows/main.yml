@@ -36,7 +36,7 @@ jobs:
         run: pyinstaller --onefile \main.py
       
       - name: Check folders
-        run: ls
+        run: ls /dist/
       
       - name: Upload files to github release
         uses: svenstaro/upload-release-action@2.3.0
