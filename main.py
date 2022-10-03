@@ -8,7 +8,7 @@ def convert(code): # Funzione usata per la traslazione in codice python
     result = """import sys
 def autotype(value):
     try:
-        if float(int(value)) == int(value):
+        if float(int(value)) == float(value):
             return(int(value))
         else:
             return(float(value))
