@@ -8,7 +8,10 @@ def convert(code): # Funzione usata per la traslazione in codice python
     result = """import sys
 def autotype(value):
     try:
-        return int(value)
+        if float(int(value)) == int(value):
+            return(int(value))
+        else:
+            return(float(value))
     except:
         return(value)
 #↑ CODICE ARBITRARIO PER CONVERTIRE GLI INPUT IN NUMERI INTERI O VALORI ALFANUMERICI
