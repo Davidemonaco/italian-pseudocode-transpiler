@@ -58,7 +58,7 @@ jobs:
 
       # Runs a set of commands using the runners shell
       - name: Compile code
-        run: pyinstaller --onefile .\main.py
+        run: pyinstaller --onefile main.py
       
       - name: Upload files to github release
         uses: svenstaro/upload-release-action@2.3.0
