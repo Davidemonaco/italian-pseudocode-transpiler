@@ -18,7 +18,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  build:
+  build_win:
     # The type of runner that the job will run on
     runs-on: windows-latest
 
@@ -43,4 +43,28 @@ jobs:
           prerelease: ${{ github.event.inputs.prerelease }}
           release_name: Transpiler ${{ github.event.inputs.vname }}
           asset_name: pseudocode.exe
+  build_linux:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
 
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+        
+      # Runs a single command using the runners shell
+      - name: Install PyInstaller
+        run: pip install pyinstaller
+
+      # Runs a set of commands using the runners shell
+      - name: Compile code
+        run: pyinstaller --onefile .\main.py
+      
+      - name: Upload files to github release
+        uses: svenstaro/upload-release-action@2.3.0
+        with:
+          file: ./dist/main
+          tag: ${{ github.event.inputs.vname }}
+          prerelease: ${{ github.event.inputs.prerelease }}
+          release_name: Transpiler ${{ github.event.inputs.vname }}
+          asset_name: pseudocode.bin.x86_64
